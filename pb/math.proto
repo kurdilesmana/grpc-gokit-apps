@@ -4,6 +4,7 @@ option go_package = "github.com/kurdilesmana/grpc-gokit-apps/pb;pb";
 
 service MathService {
   rpc Add (MathRequest) returns (MathResponse) {};
+  rpc Multiply (MathRequest) returns (MathResponse) {};
 }
 
 message MathRequest {

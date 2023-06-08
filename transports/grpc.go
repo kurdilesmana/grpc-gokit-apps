@@ -5,13 +5,14 @@ import (
 	"grpc-gokit-apps/endpoints"
 	"grpc-gokit-apps/pb"
 
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
 
 	gt "github.com/go-kit/kit/transport/grpc"
 )
 
 type gRPCServer struct {
-	add gt.Handler
+	add      gt.Handler
+	multiply gt.Handler
 	// Embed the unimplemented server
 	pb.UnimplementedMathServiceServer
 }
@@ -24,11 +25,24 @@ func NewGRPCServer(endpoints endpoints.Endpoints, logger log.Logger) pb.MathServ
 			decodeMathRequest,
 			encodeMathResponse,
 		),
+		multiply: gt.NewServer(
+			endpoints.Multiply,
+			decodeMathRequest,
+			encodeMathResponse,
+		),
 	}
 }
 
 func (s *gRPCServer) Add(ctx context.Context, req *pb.MathRequest) (*pb.MathResponse, error) {
 	_, resp, err := s.add.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*pb.MathResponse), nil
+}
+
+func (s *gRPCServer) Multiply(ctx context.Context, req *pb.MathRequest) (*pb.MathResponse, error) {
+	_, resp, err := s.multiply.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}

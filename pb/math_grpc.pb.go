@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MathServiceClient interface {
 	Add(ctx context.Context, in *MathRequest, opts ...grpc.CallOption) (*MathResponse, error)
+	Multiply(ctx context.Context, in *MathRequest, opts ...grpc.CallOption) (*MathResponse, error)
 }
 
 type mathServiceClient struct {
@@ -42,11 +43,21 @@ func (c *mathServiceClient) Add(ctx context.Context, in *MathRequest, opts ...gr
 	return out, nil
 }
 
+func (c *mathServiceClient) Multiply(ctx context.Context, in *MathRequest, opts ...grpc.CallOption) (*MathResponse, error) {
+	out := new(MathResponse)
+	err := c.cc.Invoke(ctx, "/MathService/Multiply", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MathServiceServer is the server API for MathService service.
 // All implementations must embed UnimplementedMathServiceServer
 // for forward compatibility
 type MathServiceServer interface {
 	Add(context.Context, *MathRequest) (*MathResponse, error)
+	Multiply(context.Context, *MathRequest) (*MathResponse, error)
 	mustEmbedUnimplementedMathServiceServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedMathServiceServer struct {
 
 func (UnimplementedMathServiceServer) Add(context.Context, *MathRequest) (*MathResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedMathServiceServer) Multiply(context.Context, *MathRequest) (*MathResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Multiply not implemented")
 }
 func (UnimplementedMathServiceServer) mustEmbedUnimplementedMathServiceServer() {}
 
@@ -88,6 +102,24 @@ func _MathService_Add_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MathService_Multiply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MathRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MathServiceServer).Multiply(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/MathService/Multiply",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MathServiceServer).Multiply(ctx, req.(*MathRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MathService_ServiceDesc is the grpc.ServiceDesc for MathService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var MathService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Add",
 			Handler:    _MathService_Add_Handler,
+		},
+		{
+			MethodName: "Multiply",
+			Handler:    _MathService_Multiply_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
