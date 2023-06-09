@@ -14,6 +14,7 @@ type service struct {
 type Service interface {
 	Add(ctx context.Context, num_a, num_b float32) (float32, error)
 	Multiply(ctx context.Context, num_a, num_b float32) (float32, error)
+	Divide(ctx context.Context, num_a, num_b float32) (float32, error)
 }
 
 // NewService returns a Service with all of the expected dependencies
@@ -29,4 +30,8 @@ func (s *service) Add(ctx context.Context, num_a, num_b float32) (float32, error
 
 func (s *service) Multiply(ctx context.Context, num_a, num_b float32) (float32, error) {
 	return num_a * num_b, nil
+}
+
+func (s *service) Divide(ctx context.Context, num_a, num_b float32) (float32, error) {
+	return num_a / num_b, nil
 }

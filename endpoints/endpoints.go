@@ -11,6 +11,7 @@ import (
 type Endpoints struct {
 	Add      endpoint.Endpoint
 	Multiply endpoint.Endpoint
+	Divide   endpoint.Endpoint
 }
 
 // MathReq struct holds the endpoint request definition
@@ -29,6 +30,7 @@ func MakeEndpoints(s service.Service) Endpoints {
 	return Endpoints{
 		Add:      makeAddEndpoint(s),
 		Multiply: makeMultiplyEndpoint(s),
+		Divide:   makeDivideEndpoint(s),
 	}
 }
 
@@ -44,6 +46,14 @@ func makeMultiplyEndpoint(s service.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(MathReq)
 		result, _ := s.Multiply(ctx, req.Num_a, req.Num_b)
+		return MathResp{Result: result}, nil
+	}
+}
+
+func makeDivideEndpoint(s service.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(MathReq)
+		result, _ := s.Divide(ctx, req.Num_a, req.Num_b)
 		return MathResp{Result: result}, nil
 	}
 }

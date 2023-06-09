@@ -13,6 +13,7 @@ import (
 type gRPCServer struct {
 	add      gt.Handler
 	multiply gt.Handler
+	divide   gt.Handler
 	// Embed the unimplemented server
 	pb.UnimplementedMathServiceServer
 }
@@ -30,6 +31,11 @@ func NewGRPCServer(endpoints endpoints.Endpoints, logger log.Logger) pb.MathServ
 			decodeMathRequest,
 			encodeMathResponse,
 		),
+		divide: gt.NewServer(
+			endpoints.Divide,
+			decodeMathRequest,
+			encodeMathResponse,
+		),
 	}
 }
 
@@ -43,6 +49,14 @@ func (s *gRPCServer) Add(ctx context.Context, req *pb.MathRequest) (*pb.MathResp
 
 func (s *gRPCServer) Multiply(ctx context.Context, req *pb.MathRequest) (*pb.MathResponse, error) {
 	_, resp, err := s.multiply.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*pb.MathResponse), nil
+}
+
+func (s *gRPCServer) Divide(ctx context.Context, req *pb.MathRequest) (*pb.MathResponse, error) {
+	_, resp, err := s.divide.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
